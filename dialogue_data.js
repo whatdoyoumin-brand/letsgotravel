@@ -132,7 +132,7 @@ const STAGE01_DIALOGUES = {
     choices: [
       {
         text: "▶ 쓰다듬는다",
-        alertTitle: "고양이 쓰다듬 못참지! 🐾",
+        alertTitle: "고양이 쓰다듬기 못참지! 🐾",
         alertDesc: "잘 자는 고양이를 귀찮게 하는 동안 {elapsed}분이 흘렀습니다"
       },
       {
@@ -143,7 +143,7 @@ const STAGE01_DIALOGUES = {
     ],
     alreadyChecked: {
       title: "고양이",
-      desc: "고양이는 만족한 듯 다시 자고 있어."
+      desc: "고양이는 좀 그만 귀찮게 해"
     }
   },
 
