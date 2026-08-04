@@ -362,8 +362,35 @@
       showModal("GAME OVER", reason + statsText, [{
         text: "스테이지 재시작",
         class: "btn-danger",
-        action: () => location.reload()
+        action: () => restartGameFromScratch()
       }]);
+    }
+
+    // 인메모리 게임 초기화 함수 (인트로 단계를 생략하고 즉시 재시작)
+    function restartGameFromScratch() {
+      // 1. 게임 상태 초기화
+      gameState.currentTime = 22 * 60;
+      gameState.isGameOver = false;
+      gameState.distractionCount = 0;
+      
+      gameState.checks.passport = false;
+      gameState.checks.passportInteract = 'none';
+      gameState.checks.luggage = false;
+      gameState.checks.luggageInteract = false;
+      gameState.checks.phoneTicket = false;
+      gameState.checks.phonePermit = false;
+      gameState.checks.phoneSns = false;
+      gameState.checks.windowInteract = false;
+      gameState.checks.catInteract = false;
+      gameState.checks.tvInteract = false;
+      gameState.checks.carpetInteract = false;
+
+      // 2. HUD 시간 리셋
+      document.getElementById('time-display').innerText = "현재 시간: 22:00";
+
+      // 3. 타이머 재시작
+      clearInterval(gameInterval);
+      startGameTimer();
     }
 
     // --- 오브젝트 상호작용 이벤트 핸들러 (dialogue_data.js 연동) ---
