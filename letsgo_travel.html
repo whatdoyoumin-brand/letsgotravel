@@ -360,7 +360,7 @@
       const statsText = `\n\n확인 안 한 아이템 갯수: ${uncheckedCount}개\n딴짓 한 횟수: ${gameState.distractionCount}회\n(${typeStats})`;
 
       showModal("GAME OVER", reason + statsText, [{
-        text: "스테이지 재시작",
+        text: "다시 시도",
         class: "btn-danger",
         action: () => restartGameFromScratch()
       }]);
