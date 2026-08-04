@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Let's Go Travel - Stage 01 (집)</title>
+  <!-- 레트로 도트 한글 폰트 적용을 위한 웹폰트 링크 -->
+  <link rel="stylesheet" href="https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2105_2@1.0/DungGeunMo.css">
+  <!-- NES.css CDN 로드 -->
+  <link href="https://unpkg.com/nes.css@2.3.0/css/nes.min.css" rel="stylesheet" />
+  <style>
+    /* 둥근모 픽셀 폰트 로드 */
+    @font-face {
+      font-family: 'DungGeunMo';
+      src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2105_2@1.0/DungGeunMo.woff') format('woff');
+      font-weight: normal;
+      font-style: normal;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: none;
+      -moz-osx-font-smoothing: none;
+      font-smooth: never;
+    }
+    body {
+      font-family: 'DungGeunMo', 'Pretendard', sans-serif;
+      background-color: #1a1a24;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      image-rendering: pixelated;
+    }
+
+    /* 게임 화면 컨테이너 (고정 맵 600x600) */
+    #game-container {
+      box-sizing: content-box;
+      position: relative;
+      width: 600px;
+      height: 600px;
+      background: url('stage01_bg.png') no-repeat center center;
+      background-size: 100% 100%;
+      border: 6px solid #2d1f18;
+      border-radius: 4px;
+      overflow: hidden;
+      box-shadow: 0 12px 24px rgba(0,0,0,0.6);
+    }
+
+    /* 상단 HUD */
+    #hud {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 44px;
+      background: #2d1f18;
+      color: #fff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 20px;
+      font-weight: bold;
+      border-bottom: 4px solid #1c130e;
+      z-index: 10;
+      font-size: 14px;
+    }
+
+    /* 시간 경과 강조 효과 */
+    .time-pass {
+      color: #ff4d4d;
+      transition: color 0.3s;
+    }
+
+    /* 방 내부 오브젝트 스타일 */
+    .game-object {
+      position: absolute;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border: 1px dashed transparent;
+      border-radius: 4px;
+      background-color: transparent;
+      transition: all 0.15s;
+      user-select: none;
+      color: transparent;
+    }
+    .game-object:hover {
+      border-color: rgba(255, 233, 168, 0.5); /* 아주 은은한 점선 테두리 */
+      background-color: rgba(255, 255, 255, 0.05); /* 극도로 미세한 밝기 오버레이 */
+    }
+
+    /* 배치 위치 (Stage 1 집) */
+    #obj_bed { top: 207px; left: 6px; width: 175px; height: 156px; }
+    #obj_luggage { top: 351px; left: 15px; width: 102px; height: 108px; }
+    #obj_window { top: 111px; left: 387px; width: 117px; height: 78px; z-index: 1; }
+    #obj_passport { top: 492px; left: 369px; width: 24px; height: 30px; z-index: 2; }
+    #obj_phone { top: 492px; left: 477px; width: 21px; height: 30px; z-index: 2; }
+    #obj_clock { top: 93px; left: 270px; width: 48px; height: 48px; z-index: 2; border-radius: 50%; }
+    #obj_cat { top: 270px; left: 393px; width: 96px; height: 69px; z-index: 1; }
+    #obj_bowl { top: 312px; left: 531px; width: 42px; height: 27px; z-index: 1; }
+    #obj_tv { top: 156px; left: 234px; width: 120px; height: 81px; z-index: 1; }
+    #obj_carpet { top: 321px; left: 204px; width: 174px; height: 123px; z-index: 0; }
+
+    /* 모달 팝업 스타일 */
+    .modal-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 200; /* 인트로 오버레이(150)보다 항상 위에 오도록 조정 */
+    }
+    .hidden { display: none !important; }
+
+    .modal-box {
+      width: 480px !important;
+      background-color: #f8f9fa !important; /* 포켓몬 클래식 밝은 그레이/화이트 배경 */
+      padding: 24px !important;
+      text-align: left;
+      font-family: 'DungGeunMo', 'Pretendard', sans-serif !important;
+    }
+    .modal-title {
+      font-size: 16px;
+      font-weight: normal;
+      margin-bottom: 16px;
+      color: #8e5b3e; /* 클래식 브라운 포인트 네임 컬러 */
+      border-bottom: 2px dashed #dcd1c4;
+      padding-bottom: 8px;
+      letter-spacing: 0.5px;
+    }
+    .modal-desc {
+      font-size: 14px;
+      color: #2d1f18; /* 포켓몬 폰트용 차콜 블랙 글자 */
+      margin-bottom: 24px;
+      line-height: 1.8;
+      white-space: pre-line;
+      text-align: left;
+      letter-spacing: 0.2px;
+    }
+    .btn-group { display: flex; flex-direction: column; gap: 12px; }
+    
+    /* NES.css 버튼 폰트 강제 매칭 및 레이아웃 패치 */
+    .nes-btn {
+      font-family: 'DungGeunMo', 'Pretendard', sans-serif !important;
+      text-align: left;
+      font-size: 13px !important;
+    }
+    .nes-btn.is-error {
+      text-align: center;
+    }
+
+    /* 인트로 화면 스타일 */
+    #intro-screen {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.65); /* 맵 배경이 은은하게 비치는 오버레이 */
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 150;
+      gap: 30px;
+    }
+    .intro-title {
+      font-size: 32px;
+      color: #ffd43f;
+      text-shadow: 4px 4px 0px #000;
+      font-family: 'DungGeunMo', sans-serif;
+      letter-spacing: 2px;
+      text-align: center;
+      margin: 0;
+    }
+
+
+  </style>
+  <!-- [추가] 대사 데이터 독립 로드 -->
+  <script src="dialogue_data.js"></script>
+</head>
+<body>
+
+  <div id="game-container">
+    <!-- 인트로 화면 오버레이 -->
+    <div id="intro-screen">
+      <h1 class="intro-title">LET'S GO TRAVEL</h1>
+      <button id="btn-start" class="nes-btn is-success" style="font-size: 16px !important;">START GAME</button>
+    </div>
+
+    <div id="hud">
+      <span>Stage 01: 집 (D-1 밤)</span>
+      <span id="time-display">현재 시간: 22:00</span>
+    </div>
+
+    <div id="obj_bed" class="game-object">침대 (자러 가기)</div>
+    <div id="obj_window" class="game-object">창문</div>
+    <div id="obj_passport" class="game-object">여권</div>
+    <div id="obj_phone" class="game-object">폰</div>
+    <div id="obj_clock" class="game-object">시계</div>
+    <div id="obj_luggage" class="game-object">캐리어</div>
+    <div id="obj_cat" class="game-object">고양이</div>
+    <div id="obj_bowl" class="game-object">사료 그릇</div>
+    <div id="obj_tv" class="game-object">TV</div>
+    <div id="obj_carpet" class="game-object">카페트</div>
+
+    <div id="modal" class="modal-overlay hidden">
+      <div class="modal-box nes-container is-rounded">
+        <div id="modal-title" class="modal-title">팝업 제목</div>
+        <div id="modal-desc" class="modal-desc">팝업 설명 내용</div>
+        <div id="modal-btns" class="btn-group"></div>
+      </div>
+    </div>
+  </div>
+
+
+
+  <script>
+    // --- 게임 상태 데이터 ---
+    const gameState = {
+      currentTime: 22 * 60, // 시작 시각 22:00 (분 단위, 총 120분)
+      timeLimit: 24 * 60,   // 자정 (24:00) 시 타임오버 실패
+      isGameOver: false,    // 게임오버 상태 플래그
+      distractionCount: 0,  // 딴짓 한 횟수
+      userType: null,       // 유저 성향 ('planner' | 'spontaneous')
+      checks: {
+        passport: false,      // 펼쳐서 확인까지 마친 경우만 true
+        passportInteract: 'none', // 여권 챙김 상태 추적 ('none' | 'taken' | 'inspected')
+        luggage: false,
+        luggageInteract: false,   // [추가] 캐리어 조사 완료 여부
+        phoneTicket: false,
+        phonePermit: false,
+        phoneSns: false,          // [추가] SNS 확인 상태
+        windowInteract: false,    // [추가] 창문 조사 완료 여부
+        catInteract: false,
+        tvInteract: false,
+        carpetInteract: false
+      }
+    };
+
+    const modal = document.getElementById('modal');
+    const modalTitle = document.getElementById('modal-title');
+    const modalDesc = document.getElementById('modal-desc');
+    const modalBtns = document.getElementById('modal-btns');
+    const timeDisplay = document.getElementById('time-display');
+    
+    // 실시간 타이머 인터벌 변수
+    let gameInterval;
+
+    // --- 오브젝트 라벨 동적 로드 (dialogue_data.js 연동) ---
+    document.getElementById('obj_passport').innerHTML = `여권`;
+    document.getElementById('obj_phone').innerHTML = `휴대폰`;
+    document.getElementById('obj_clock').innerHTML = `시계`;
+    document.getElementById('obj_luggage').innerHTML = `캐리어`;
+    document.getElementById('obj_window').innerHTML = `창문`;
+    document.getElementById('obj_cat').innerHTML = `고양이`;
+    document.getElementById('obj_bowl').innerHTML = `사료 그릇`;
+    document.getElementById('obj_tv').innerHTML = `TV`;
+    document.getElementById('obj_carpet').innerHTML = `카페트`;
+    const sleepActionText = STAGE01_DIALOGUES.bed.choices.sleep.replace("▶ ", "");
+    document.getElementById('obj_bed').innerHTML = `침대 (${sleepActionText})`;
+
+    // 시간 경과 함수
+    function addMinutes(mins) {
+      gameState.currentTime += mins;
+      const hours = Math.floor(gameState.currentTime / 60) % 24;
+      const minutes = gameState.currentTime % 60;
+      const timeStr = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+      
+      timeDisplay.innerText = `현재 시간: ${timeStr}`;
+
+      // 자정(24:00) 경과 시 즉시 게임 오버 (대사 데이터 참조)
+      if (gameState.currentTime >= gameState.timeLimit) {
+        triggerGameOver(STAGE01_DIALOGUES.gameOver.timeOut);
+      }
+    }
+
+    // 5분 ~ 10분 사이의 소량을 소모시키는 표준 행동 함수 (게임오버 밸런스 조정)
+    function addStandardTime() {
+      const standardMins = Math.floor(Math.random() * (10 - 5 + 1)) + 5; // 5~10분
+      addMinutes(standardMins);
+      return standardMins;
+    }
+
+    function updateStatusBoard() {
+      // 체크리스트 UI 제거로 비활성화
+    }
+
+    // 모달 표시 함수
+    function showModal(title, desc, buttons) {
+      // 게임 오버 상태일 경우 일반 팝업 노출 차단 (게임 오버 창 유지)
+      if (gameState.isGameOver && title !== "GAME OVER") {
+        return;
+      }
+
+      if (title === "알림" || !title) {
+        modalTitle.classList.add('hidden');
+      } else {
+        modalTitle.classList.remove('hidden');
+        modalTitle.innerText = title;
+      }
+      modalDesc.innerText = desc;
+      modalBtns.innerHTML = '';
+
+      buttons.forEach(btnInfo => {
+        if (btnInfo.hidden) return;
+        
+        const btn = document.createElement('button');
+        const isDanger = btnInfo.class && btnInfo.class.includes('btn-danger');
+        
+        if (btnInfo.disabled) {
+          btn.className = `nes-btn is-disabled`;
+          btn.disabled = true;
+        } else {
+          btn.className = `nes-btn ${isDanger ? 'is-error' : ''}`;
+          btn.onclick = () => {
+            modal.classList.add('hidden');
+            if (btnInfo.action) btnInfo.action();
+          };
+        }
+        btn.innerText = btnInfo.text;
+        modalBtns.appendChild(btn);
+      });
+
+      modal.classList.remove('hidden');
+    }
+
+    // 게임 오버 - 게임 오버 시 실시간 타이머 일시중지
+    function triggerGameOver(reason) {
+      gameState.isGameOver = true;
+      clearInterval(gameInterval);
+
+      // 확인 안 한 필수 아이템 개수 계산 (여권, 캐리어, 휴대폰 티켓, 휴대폰 여행허가)
+      let uncheckedCount = 0;
+      if (!gameState.checks.passport) uncheckedCount++;
+      if (!gameState.checks.luggage) uncheckedCount++;
+      if (!gameState.checks.phoneTicket) uncheckedCount++;
+      if (!gameState.checks.phonePermit) uncheckedCount++;
+
+      // 성향별 맞춤 풍자 통계 메시지 생성
+      let typeStats = '';
+      if (gameState.userType === 'planner') {
+        if (gameState.distractionCount === 0) {
+          typeStats = '역시 꼼꼼한 계획파다운 대단한 집중력이네요!';
+        } else {
+          const times = (gameState.distractionCount * 1.8).toFixed(1);
+          typeStats = `다른 계획파 평균보다 ${times}배 더 딴짓했습니다!`;
+        }
+      } else { // spontaneous
+        if (gameState.distractionCount <= 1) {
+          typeStats = '즉흥적인 기분파치고 엄청나게 집중을 잘했습니다!';
+        } else {
+          const pct = Math.min(50 + (gameState.distractionCount * 12), 99);
+          typeStats = `역시 즉흥적인 기분파답네요! 딴짓 상위 ${pct}%에 달합니다.`;
+        }
+      }
+
+      const statsText = `\n\n확인 안 한 아이템 갯수: ${uncheckedCount}개\n딴짓 한 횟수: ${gameState.distractionCount}회\n(${typeStats})`;
+
+      showModal("GAME OVER", reason + statsText, [{
+        text: "스테이지 재시작",
+        class: "btn-danger",
+        action: () => location.reload()
+      }]);
+    }
+
+    // --- 오브젝트 상호작용 이벤트 핸들러 (dialogue_data.js 연동) ---
+
+    // 1. 시계 (obj_clock) - 시계 확인 시에는 시간을 소비하지 않음
+    document.getElementById('obj_clock').onclick = () => {
+      const hours = Math.floor(gameState.currentTime / 60);
+      const minutes = gameState.currentTime % 60;
+      const desc = STAGE01_DIALOGUES.clock.desc
+                    .replace("{hours}", hours)
+                    .replace("{minutes}", String(minutes).padStart(2, '0'));
+      showModal(STAGE01_DIALOGUES.clock.title, desc, [{ text: "확인" }]);
+    };
+
+    // 2. 여권 (obj_passport)
+    document.getElementById('obj_passport').onclick = () => {
+      if (gameState.checks.passportInteract !== 'none') {
+        showModal(STAGE01_DIALOGUES.passport.alreadyChecked.title, STAGE01_DIALOGUES.passport.alreadyChecked.desc, [{ text: "확인" }]);
+        return;
+      }
+
+      showModal(STAGE01_DIALOGUES.passport.title, STAGE01_DIALOGUES.passport.desc, [
+        {
+          text: STAGE01_DIALOGUES.passport.choices[0].text,
+          action: () => {
+            const elapsed = addStandardTime();
+            gameState.checks.passport = false;
+            gameState.checks.passportInteract = 'taken';
+            updateStatusBoard();
+            const alertText = STAGE01_DIALOGUES.passport.choices[0].alertDesc.replace("{elapsed}", elapsed);
+            showModal(STAGE01_DIALOGUES.passport.choices[0].alertTitle, alertText, [{ text: "확인" }]);
+          }
+        },
+        {
+          text: STAGE01_DIALOGUES.passport.choices[1].text,
+          action: () => {
+            const elapsed = addStandardTime();
+            gameState.checks.passport = true;
+            gameState.checks.passportInteract = 'inspected';
+            updateStatusBoard();
+            const alertText = STAGE01_DIALOGUES.passport.choices[1].alertDesc.replace("{elapsed}", elapsed);
+            showModal(STAGE01_DIALOGUES.passport.choices[1].alertTitle, alertText, [{ text: "확인" }]);
+          }
+        }
+      ]);
+    };
+
+    // 3. 스마트폰 (obj_phone)
+    document.getElementById('obj_phone').onclick = () => {
+      const ticketDone = gameState.checks.phoneTicket;
+      const permitDone = gameState.checks.phonePermit;
+      const snsDone = gameState.checks.phoneSns;
+
+      if (ticketDone && permitDone && snsDone) {
+        showModal(STAGE01_DIALOGUES.phone.alreadyChecked.title, STAGE01_DIALOGUES.phone.alreadyChecked.desc, [{ text: "확인" }]);
+        return;
+      }
+
+      showModal(STAGE01_DIALOGUES.phone.title, STAGE01_DIALOGUES.phone.desc, [
+        {
+          text: ticketDone ? STAGE01_DIALOGUES.phone.choices[0].textDone : STAGE01_DIALOGUES.phone.choices[0].text,
+          disabled: ticketDone,
+          action: () => {
+            const elapsed = addStandardTime();
+            gameState.checks.phoneTicket = true;
+            updateStatusBoard();
+            const alertText = STAGE01_DIALOGUES.phone.choices[0].alertDesc.replace("{elapsed}", elapsed);
+            showModal(STAGE01_DIALOGUES.phone.choices[0].alertTitle, alertText, [{ text: "확인" }]);
+          }
+        },
+        {
+          text: permitDone ? STAGE01_DIALOGUES.phone.choices[1].textDone : STAGE01_DIALOGUES.phone.choices[1].text,
+          disabled: permitDone,
+          action: () => {
+            const elapsed = addStandardTime();
+            gameState.checks.phonePermit = true;
+            updateStatusBoard();
+            const alertText = STAGE01_DIALOGUES.phone.choices[1].alertDesc.replace("{elapsed}", elapsed);
+            showModal(STAGE01_DIALOGUES.phone.choices[1].alertTitle, alertText, [{ text: "확인" }]);
+          }
+        },
+        {
+          text: snsDone ? STAGE01_DIALOGUES.phone.choices[2].textDone : STAGE01_DIALOGUES.phone.choices[2].text,
+          disabled: snsDone,
+          action: () => {
+            addMinutes(30);
+            gameState.distractionCount++;
+            gameState.checks.phoneSns = true;
+            showModal(STAGE01_DIALOGUES.phone.choices[2].alertTitle, STAGE01_DIALOGUES.phone.choices[2].alertDesc, [{ text: "아차!" }]);
+          }
+        }
+      ]);
+    };
+
+    // 4. 캐리어 (obj_luggage)
+    document.getElementById('obj_luggage').onclick = () => {
+      if (gameState.checks.luggageInteract) {
+        showModal(STAGE01_DIALOGUES.luggage.alreadyChecked.title, STAGE01_DIALOGUES.luggage.alreadyChecked.desc, [{ text: "확인" }]);
+        return;
+      }
+
+      showModal(STAGE01_DIALOGUES.luggage.title, STAGE01_DIALOGUES.luggage.desc, [
+        {
+          text: STAGE01_DIALOGUES.luggage.choices[0].text,
+          action: () => {
+            const elapsed = addStandardTime();
+            gameState.checks.luggage = false;
+            gameState.checks.luggageInteract = true;
+            updateStatusBoard();
+            const alertText = STAGE01_DIALOGUES.luggage.choices[0].alertDesc.replace("{elapsed}", elapsed);
+            showModal(STAGE01_DIALOGUES.luggage.choices[0].alertTitle, alertText, [{ text: "확인" }]);
+          }
+        },
+        {
+          text: STAGE01_DIALOGUES.luggage.choices[1].text,
+          action: () => {
+            const elapsed = addStandardTime();
+            gameState.checks.luggage = true;
+            gameState.checks.luggageInteract = true;
+            updateStatusBoard();
+            const alertText = STAGE01_DIALOGUES.luggage.choices[1].alertDesc.replace("{elapsed}", elapsed);
+            showModal(STAGE01_DIALOGUES.luggage.choices[1].alertTitle, alertText, [{ text: "확인" }]);
+          }
+        }
+      ]);
+    };
+
+    // [추가] 창문 (obj_window)
+    document.getElementById('obj_window').onclick = () => {
+      showModal(STAGE01_DIALOGUES.window.title, STAGE01_DIALOGUES.window.desc, [{ text: "확인" }]);
+    };
+
+    // [추가] 고양이 (obj_cat)
+    document.getElementById('obj_cat').onclick = () => {
+      if (gameState.checks.catInteract) {
+        showModal(STAGE01_DIALOGUES.cat.alreadyChecked.title, STAGE01_DIALOGUES.cat.alreadyChecked.desc, [{ text: "확인" }]);
+        return;
+      }
+
+      showModal(STAGE01_DIALOGUES.cat.title, STAGE01_DIALOGUES.cat.desc, [
+        {
+          text: STAGE01_DIALOGUES.cat.choices[0].text,
+          action: () => {
+            // 쓰다듬는다: 15~30분 무작위 시간 소모 (트랩)
+            const elapsed = Math.floor(Math.random() * (30 - 15 + 1)) + 15;
+            addMinutes(elapsed);
+            gameState.distractionCount++;
+            gameState.checks.catInteract = true;
+            const alertText = STAGE01_DIALOGUES.cat.choices[0].alertDesc.replace("{elapsed}", elapsed);
+            showModal(STAGE01_DIALOGUES.cat.choices[0].alertTitle, alertText, [{ text: "확인" }]);
+          }
+        },
+        {
+          text: STAGE01_DIALOGUES.cat.choices[1].text,
+          action: () => {
+            gameState.checks.catInteract = true;
+            showModal(STAGE01_DIALOGUES.cat.choices[1].alertTitle, STAGE01_DIALOGUES.cat.choices[1].alertDesc, [{ text: "확인" }]);
+          }
+        }
+      ]);
+    };
+
+    // [추가] 고양이 사료 그릇 (obj_bowl)
+    document.getElementById('obj_bowl').onclick = () => {
+      showModal(STAGE01_DIALOGUES.bowl.title, STAGE01_DIALOGUES.bowl.desc, [{ text: "확인" }]);
+    };
+
+    // [추가] TV (obj_tv)
+    document.getElementById('obj_tv').onclick = () => {
+      if (gameState.checks.tvInteract) {
+        showModal(STAGE01_DIALOGUES.tv.alreadyChecked.title, STAGE01_DIALOGUES.tv.alreadyChecked.desc, [{ text: "확인" }]);
+        return;
+      }
+
+      showModal(STAGE01_DIALOGUES.tv.title, STAGE01_DIALOGUES.tv.desc, [
+        {
+          text: STAGE01_DIALOGUES.tv.choices[0].text,
+          action: () => {
+            // 틀어둔다: 15분 소비
+            addMinutes(15);
+            gameState.distractionCount++;
+            gameState.checks.tvInteract = true;
+            const alertText = STAGE01_DIALOGUES.tv.choices[0].alertDesc.replace("{elapsed}", 15);
+            showModal(STAGE01_DIALOGUES.tv.choices[0].alertTitle, alertText, [{ text: "확인" }]);
+          }
+        },
+        {
+          text: STAGE01_DIALOGUES.tv.choices[1].text,
+          action: () => {
+            gameState.checks.tvInteract = true;
+            showModal(STAGE01_DIALOGUES.tv.choices[1].alertTitle, STAGE01_DIALOGUES.tv.choices[1].alertDesc, [{ text: "확인" }]);
+          }
+        }
+      ]);
+    };
+
+    // [추가] 카페트 (obj_carpet)
+    document.getElementById('obj_carpet').onclick = () => {
+      if (gameState.checks.carpetInteract) {
+        showModal(STAGE01_DIALOGUES.carpet.alreadyChecked.title, STAGE01_DIALOGUES.carpet.alreadyChecked.desc, [{ text: "확인" }]);
+        return;
+      }
+
+      showModal(STAGE01_DIALOGUES.carpet.title, STAGE01_DIALOGUES.carpet.desc, [
+        {
+          text: STAGE01_DIALOGUES.carpet.choices[0].text,
+          action: () => {
+            // 치운다: 15분 소비
+            addMinutes(15);
+            gameState.distractionCount++;
+            gameState.checks.carpetInteract = true;
+            const alertText = STAGE01_DIALOGUES.carpet.choices[0].alertDesc.replace("{elapsed}", 15);
+            showModal(STAGE01_DIALOGUES.carpet.choices[0].alertTitle, alertText, [{ text: "확인" }]);
+          }
+        },
+        {
+          text: STAGE01_DIALOGUES.carpet.choices[1].text,
+          action: () => {
+            gameState.checks.carpetInteract = true;
+            showModal(STAGE01_DIALOGUES.carpet.choices[1].alertTitle, STAGE01_DIALOGUES.carpet.choices[1].alertDesc, [{ text: "확인" }]);
+          }
+        }
+      ]);
+    };
+
+    // 5. 침대 (obj_bed) - 최종 클리어 조건 검사
+    document.getElementById('obj_bed').onclick = () => {
+      showModal(STAGE01_DIALOGUES.bed.title, STAGE01_DIALOGUES.bed.desc, [
+        {
+          text: STAGE01_DIALOGUES.bed.choices.sleep,
+          action: () => {
+            // 아무 오브젝트도 조사하지 않고 갈 경우 최우선으로 '여권을 집에 두고 옴' 조건 검사
+            if (gameState.checks.passportInteract === 'none') {
+              clearInterval(gameInterval);
+              triggerGameOver(STAGE01_DIALOGUES.gameOver.passportLeftBehind);
+            } else if (gameState.checks.passportInteract === 'taken') { // 가방에만 넣고 확인 안함
+              clearInterval(gameInterval);
+              triggerGameOver(STAGE01_DIALOGUES.gameOver.passportInvalid);
+            } else if (!gameState.checks.luggage) {
+              clearInterval(gameInterval);
+              triggerGameOver(STAGE01_DIALOGUES.gameOver.luggageBattery);
+            } else if (!gameState.checks.phoneTicket) {
+              clearInterval(gameInterval);
+              triggerGameOver(STAGE01_DIALOGUES.gameOver.phoneTicketUnchecked);
+            } else if (!gameState.checks.phonePermit) {
+              clearInterval(gameInterval);
+              triggerGameOver(STAGE01_DIALOGUES.gameOver.phonePermitUnchecked);
+            } else {
+              clearInterval(gameInterval);
+              showModal(STAGE01_DIALOGUES.stageClear.title, STAGE01_DIALOGUES.stageClear.desc, [
+                { 
+                  text: STAGE01_DIALOGUES.stageClear.nextStageBtn, 
+                  action: () => alert(STAGE01_DIALOGUES.stageClear.nextStageAlert) 
+                }
+              ]);
+            }
+          }
+        },
+        {
+          text: STAGE01_DIALOGUES.bed.choices.lookAround,
+          action: () => {
+            showModal(STAGE01_DIALOGUES.bed.alreadyChecked.title, STAGE01_DIALOGUES.bed.alreadyChecked.desc, [{ text: "확인" }]);
+          }
+        }
+      ]);
+    };
+
+    // 인트로 버튼 이벤트 리스너 바인딩
+    document.getElementById('btn-start').onclick = () => {
+      // 버튼 임시 감춤
+      document.getElementById('btn-start').style.display = 'none';
+
+      // 1단계: 성향 선택 팝업 (dialogue_data.js 연동)
+      showModal(STAGE01_DIALOGUES.userTypeSelect.title, STAGE01_DIALOGUES.userTypeSelect.desc, [
+        {
+          text: STAGE01_DIALOGUES.userTypeSelect.choices[0],
+          action: () => {
+            gameState.userType = 'planner';
+            showIntroScriptPopup();
+          }
+        },
+        {
+          text: STAGE01_DIALOGUES.userTypeSelect.choices[1],
+          action: () => {
+            gameState.userType = 'spontaneous';
+            showIntroScriptPopup();
+          }
+        }
+      ]);
+    };
+
+    function showIntroScriptPopup() {
+      // 2단계: 스토리 스크립트 팝업
+      showModal(STAGE01_DIALOGUES.intro.title, STAGE01_DIALOGUES.intro.desc, [
+        {
+          text: STAGE01_DIALOGUES.intro.startBtn,
+          action: () => {
+            // 인트로 오버레이 완전히 숨김
+            document.getElementById('intro-screen').classList.add('hidden');
+            // 실시간 타이머 시작
+            startGameTimer();
+          }
+        }
+      ]);
+    }
+
+    function startGameTimer() {
+      // 실시간 시간 흐름 타이머 구동 (현실 시간 1초당 게임 시간 1분 경과)
+      gameInterval = setInterval(() => {
+        addMinutes(1);
+      }, 1000);
+    }
+  </script>
+</body>
+</html>
