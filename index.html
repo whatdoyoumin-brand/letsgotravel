@@ -675,9 +675,11 @@
     <!-- 인트로 화면 오버레이 -->
     <div id="intro-screen">
       <h1 class="intro-title">LET'S GO TRAVEL</h1>
-      <button id="btn-start" class="nes-btn is-success" style="font-size: 16px !important; margin-bottom: 8px;">START GAME</button>
+      <button id="btn-start" class="nes-btn is-success" style="font-size: 16px !important; margin-bottom: 8px;">START
+        GAME</button>
       <!-- 인트로용 실시간 랭킹보드 -->
-      <div id="intro-ranking-board" style="width: 100%; display: flex; flex-direction: column; align-items: center; gap: 4px;"></div>
+      <div id="intro-ranking-board"
+        style="width: 100%; display: flex; flex-direction: column; align-items: center; gap: 4px;"></div>
     </div>
 
     <!-- 상단 게임 화면 영역 -->
@@ -737,7 +739,7 @@
               style="color: #ffd43f; font-weight: bold;">SNS(숏폼) 보기</span></div>
         </div>
 
-        <div id="ranking-board"
+        <div id="ranking-board" class="hidden"
           style="width: 100%; display: flex; flex-direction: column; align-items: center; gap: 6px;"></div>
       </div>
 
@@ -769,7 +771,8 @@
     <div id="dialogue-area" class="dialogue-box-container hidden">
       <div class="dialogue-box" onclick="skipTyping()">
         <div id="dialogue-title" class="dialogue-title hidden">알림</div>
-        <button id="btn-dialogue-close" class="hidden" style="position: absolute; right: 16px; top: 12px; font-size: 10px; padding: 4px 10px; font-family: inherit; z-index: 10; background-color: #ff4d4d; color: #fff; border: 2px solid #23231f; border-radius: 4px; cursor: pointer; font-weight: bold; box-shadow: 0 2px 0px #000;">돌아가기</button>
+        <button id="btn-dialogue-close" class="hidden"
+          style="position: absolute; right: 16px; top: 12px; font-size: 10px; padding: 4px 10px; font-family: inherit; z-index: 10; background-color: #ff4d4d; color: #fff; border: 2px solid #23231f; border-radius: 4px; cursor: pointer; font-weight: bold; box-shadow: 0 2px 0px #000;">돌아가기</button>
         <div id="dialogue-text" class="dialogue-text">준비가 끝나면 자러가자</div>
         <div id="dialogue-btns" class="dialogue-buttons"></div>
       </div>
@@ -948,11 +951,11 @@
 
     function renderDialogueButtons(buttons) {
       dialogueBtns.innerHTML = '';
-      
+
       // 돌아가기 버튼을 상단 우측 전용 닫기 버튼으로 분리
       const closeBtn = document.getElementById('btn-dialogue-close');
       const goBackBtnInfo = buttons ? buttons.find(btn => btn.text === "▶ 돌아가기") : null;
-      
+
       if (goBackBtnInfo) {
         closeBtn.classList.remove('hidden');
         closeBtn.onclick = (e) => {
@@ -1585,7 +1588,7 @@
         },
         {
           text: "▶ 돌아가기",
-          action: () => {}
+          action: () => { }
         }
       ]);
     };
@@ -1650,7 +1653,7 @@
 
       choices.push({
         text: "▶ 돌아가기",
-        action: () => {}
+        action: () => { }
       });
 
       showModal(STAGE01_DIALOGUES.phone.title, STAGE01_DIALOGUES.phone.desc, choices);
@@ -1689,7 +1692,7 @@
         },
         {
           text: "▶ 돌아가기",
-          action: () => {}
+          action: () => { }
         }
       ]);
     };
@@ -1730,7 +1733,7 @@
         },
         {
           text: "▶ 돌아가기",
-          action: () => {}
+          action: () => { }
         }
       ]);
     };
@@ -1775,7 +1778,7 @@
         },
         {
           text: "▶ 돌아가기",
-          action: () => {}
+          action: () => { }
         }
       ]);
     };
@@ -1807,7 +1810,7 @@
         },
         {
           text: "▶ 돌아가기",
-          action: () => {}
+          action: () => { }
         }
       ]);
     };
@@ -1933,7 +1936,7 @@
         },
         {
           text: "▶ 돌아가기",
-          action: () => {}
+          action: () => { }
         }
       ]);
     };
@@ -1996,7 +1999,7 @@
         },
         {
           text: "▶ 돌아가기",
-          action: () => {}
+          action: () => { }
         }
       ]);
     };
@@ -2255,7 +2258,7 @@
 
       choices.push({
         text: "▶ 돌아가기",
-        action: () => {}
+        action: () => { }
       });
 
       showModal(STAGE02_DIALOGUES.gateSeat.title, STAGE02_DIALOGUES.gateSeat.desc, choices);
