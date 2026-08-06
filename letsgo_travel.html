@@ -703,7 +703,7 @@
         <div id="clear-my-record" style="font-size: 11px; color: #fff; margin-bottom: 10px; text-shadow: 1px 1px 0px #000; text-align: center; line-height: 1.4;"></div>
         
         <!-- 실시간 통계 표시 판넬 -->
-        <div id="clear-stats-board" style="font-size: 9px; color: #eee; margin-bottom: 12px; text-shadow: 1px 1px 0px #000; text-align: left; line-height: 1.6; background: rgba(45, 31, 24, 0.85); border: 2px solid #5a3f30; padding: 8px 12px; border-radius: 4px; width: 85%; box-sizing: border-box; display: flex; flex-direction: column; gap: 3px;">
+        <div id="clear-stats-board" class="hidden" style="font-size: 9px; color: #eee; margin-bottom: 12px; text-shadow: 1px 1px 0px #000; text-align: left; line-height: 1.6; background: rgba(45, 31, 24, 0.85); border: 2px solid #5a3f30; padding: 8px 12px; border-radius: 4px; width: 85%; box-sizing: border-box; display: flex; flex-direction: column; gap: 3px;">
           <div>📊 다른 사람들이 가장 많이 놓친 항목: <span id="stat-most-missed" style="color: #ff6b6b; font-weight: bold;">이티켓 확인</span></div>
           <div>📈 계획파가 가장 많이 한 딴짓: <span id="stat-planner-distraction" style="color: #ffd43f; font-weight: bold;">고양이 쓰다듬기</span></div>
           <div>📉 기분파가 가장 많이 한 딴짓: <span id="stat-spontaneous-distraction" style="color: #ffd43f; font-weight: bold;">SNS(숏폼) 보기</span></div>
@@ -1235,78 +1235,16 @@
           } else {
             isSupabaseActive = false; // 에러 발생 시 로컬 폴백
           }
-
-          // 4) DB 통계 데이터 집계 및 화면 바인딩
-          try {
-            // 실패 원인 집계용 (최신 500개)
-            const { data: failLogs } = await supabaseClient
-              .from('game_logs')
-              .select('fail_reason')
-              .eq('status', 'fail')
-              .order('id', { ascending: false })
-              .limit(500);
-
-            if (failLogs && failLogs.length > 0) {
-              const failCounts = {};
-              let mostMissedKey = "";
-              let maxFailCount = 0;
-              failLogs.forEach(log => {
-                if (log.fail_reason) {
-                  failCounts[log.fail_reason] = (failCounts[log.fail_reason] || 0) + 1;
-                  if (failCounts[log.fail_reason] > maxFailCount) {
-                    maxFailCount = failCounts[log.fail_reason];
-                    mostMissedKey = log.fail_reason;
-                  }
-                }
-              });
-              const failReasonNames = {
-                passportLeftBehind: "여권 챙기기",
-                passportInvalid: "여권 유효기간 확인",
-                luggageBattery: "보조배터리 분리",
-                phoneTicketUnchecked: "이티켓 확인",
-                phonePermitUnchecked: "여행 허가 메일 확인",
-                gateEarphone: "대기석에서 노래 듣기",
-                gateYoutube: "대기석에서 유튜브 시청",
-                strangerTrap: "낯선 사람 짐 맡아주기",
-                clockUnchecked: "공항 시계 확인",
-                timeOut: "시간 초과"
-              };
-              if (mostMissedKey && failReasonNames[mostMissedKey]) {
-                document.getElementById('stat-most-missed').innerText = failReasonNames[mostMissedKey];
-              }
-            }
-
-            // 계획파 딴짓 집계용 (최신 500개)
-            const { data: plannerLogs } = await supabaseClient
-              .from('game_logs')
-              .select('distraction_sns, distraction_cat, distraction_tv, distraction_bowl, distraction_carpet, distraction_dutyfree')
-              .eq('user_type', 'planner')
-              .limit(500);
-
-            if (plannerLogs && plannerLogs.length > 0) {
-              document.getElementById('stat-planner-distraction').innerText = getMostFrequentDistractionName(plannerLogs);
-            }
-
-            // 기분파 딴짓 집계용 (최신 500개)
-            const { data: spontaneousLogs } = await supabaseClient
-              .from('game_logs')
-              .select('distraction_sns, distraction_cat, distraction_tv, distraction_bowl, distraction_carpet, distraction_dutyfree')
-              .eq('user_type', 'spontaneous')
-              .limit(500);
-
-            if (spontaneousLogs && spontaneousLogs.length > 0) {
-              document.getElementById('stat-spontaneous-distraction').innerText = getMostFrequentDistractionName(spontaneousLogs);
-            }
-
-          } catch (statError) {
-            console.error("Failed to load DB stats:", statError);
-          }
-
         } catch (e) {
           console.error("Supabase error:", e);
           isSupabaseActive = false;
         }
       }
+
+      // 4) 랭킹 및 내 기록 표시 활성화, 통계 판넬 비활성화
+      document.getElementById('clear-stats-board').classList.add('hidden');
+      document.getElementById('ranking-board').classList.remove('hidden');
+      document.getElementById('clear-my-record').classList.remove('hidden');
 
       // 로컬 스토리지 동시 기록 및 에러 폴백 대응 로직
       const localRecord = {
@@ -1469,6 +1407,83 @@
           ]);
       } catch (e) {
         console.error("Log insert error:", e);
+      }
+    }
+
+    async function showStage1ClearStats() {
+      // 1) 랭킹 및 내 기록 가리기
+      document.getElementById('ranking-board').classList.add('hidden');
+      document.getElementById('clear-my-record').classList.add('hidden');
+      
+      // 2) 통계 보드 보이기
+      const statsBoard = document.getElementById('clear-stats-board');
+      statsBoard.classList.remove('hidden');
+
+      let isSupabaseActive = (supabaseClient !== null);
+      if (isSupabaseActive) {
+        try {
+          // 실패 원인 집계용 (최신 500개)
+          const { data: failLogs } = await supabaseClient
+            .from('game_logs')
+            .select('fail_reason')
+            .eq('status', 'fail')
+            .order('id', { ascending: false })
+            .limit(500);
+
+          if (failLogs && failLogs.length > 0) {
+            const failCounts = {};
+            let mostMissedKey = "";
+            let maxFailCount = 0;
+            failLogs.forEach(log => {
+              if (log.fail_reason) {
+                failCounts[log.fail_reason] = (failCounts[log.fail_reason] || 0) + 1;
+                if (failCounts[log.fail_reason] > maxFailCount) {
+                  maxFailCount = failCounts[log.fail_reason];
+                  mostMissedKey = log.fail_reason;
+                }
+              }
+            });
+            const failReasonNames = {
+              passportLeftBehind: "여권 챙기기",
+              passportInvalid: "여권 유효기간 확인",
+              luggageBattery: "보조배터리 분리",
+              phoneTicketUnchecked: "이티켓 확인",
+              phonePermitUnchecked: "여행 허가 메일 확인",
+              gateEarphone: "대기석에서 노래 듣기",
+              gateYoutube: "대기석에서 유튜브 시청",
+              strangerTrap: "낯선 사람 짐 맡아주기",
+              clockUnchecked: "공항 시계 확인",
+              timeOut: "시간 초과"
+            };
+            if (mostMissedKey && failReasonNames[mostMissedKey]) {
+              document.getElementById('stat-most-missed').innerText = failReasonNames[mostMissedKey];
+            }
+          }
+
+          // 계획파 딴짓 집계용 (최신 500개)
+          const { data: plannerLogs } = await supabaseClient
+            .from('game_logs')
+            .select('distraction_sns, distraction_cat, distraction_tv, distraction_bowl, distraction_carpet, distraction_dutyfree')
+            .eq('user_type', 'planner')
+            .limit(500);
+
+          if (plannerLogs && plannerLogs.length > 0) {
+            document.getElementById('stat-planner-distraction').innerText = getMostFrequentDistractionName(plannerLogs);
+          }
+
+          // 기분파 딴짓 집계용 (최신 500개)
+          const { data: spontaneousLogs } = await supabaseClient
+            .from('game_logs')
+            .select('distraction_sns, distraction_cat, distraction_tv, distraction_bowl, distraction_carpet, distraction_dutyfree')
+            .eq('user_type', 'spontaneous')
+            .limit(500);
+
+          if (spontaneousLogs && spontaneousLogs.length > 0) {
+            document.getElementById('stat-spontaneous-distraction').innerText = getMostFrequentDistractionName(spontaneousLogs);
+          }
+        } catch (e) {
+          console.error("Failed to load Stage 1 clear stats:", e);
+        }
       }
     }
 
@@ -1738,6 +1753,7 @@
               triggerGameOver(STAGE01_DIALOGUES.gameOver.phonePermitUnchecked);
             } else {
               clearInterval(gameInterval);
+              showStage1ClearStats();
               clearOverlay.querySelector('.clear-banner').innerText = "STAGE CLEAR 🎉";
               clearOverlay.classList.remove('hidden');
               showModal(STAGE01_DIALOGUES.stageClear.title, STAGE01_DIALOGUES.stageClear.desc, [
