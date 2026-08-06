@@ -23,6 +23,16 @@
   <link href="https://unpkg.com/nes.css@2.3.0/css/nes.min.css" rel="stylesheet" />
   <!-- Supabase CDN Client Library -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- 주요 게임 이미지 프리로드 (배경 전환 시 끊김 방지) -->
+  <link rel="preload" as="image" href="bg/stage01_s.png">
+  <link rel="preload" as="image" href="bg/stage01_s_bagclosed.png">
+  <link rel="preload" as="image" href="bg/stage01_s_tvonbagclosed.png">
+  <link rel="preload" as="image" href="bg/stage01_s_tvonbagopen.png">
+  <link rel="preload" as="image" href="bg/stage01_l.png">
+  <link rel="preload" as="image" href="bg/stage01_l_bagclosed.png">
+  <link rel="preload" as="image" href="bg/stage01_l_tvonbagclosed.png">
+  <link rel="preload" as="image" href="bg/stage01_l_tvonbagopen.png">
+  <link rel="preload" as="image" href="bg/stage02.png">
   <style>
     /* 둥근모 픽셀 폰트 로드 */
     @font-face {
@@ -614,6 +624,25 @@
 
     .hidden {
       display: none !important;
+    }
+
+    /* 주요 배경 이미지 프리로드 (네트워크 로딩 시 깜빡임/블랙스크린 방지) */
+    body::after {
+      position: absolute;
+      width: 0;
+      height: 0;
+      overflow: hidden;
+      z-index: -100;
+      content: 
+        url('bg/stage01_s.png') 
+        url('bg/stage01_s_bagclosed.png') 
+        url('bg/stage01_s_tvonbagclosed.png') 
+        url('bg/stage01_s_tvonbagopen.png') 
+        url('bg/stage01_l.png') 
+        url('bg/stage01_l_bagclosed.png') 
+        url('bg/stage01_l_tvonbagclosed.png') 
+        url('bg/stage01_l_tvonbagopen.png') 
+        url('bg/stage02.png');
     }
   </style>
   <!-- [추가] 대사 데이터 독립 로드 -->
