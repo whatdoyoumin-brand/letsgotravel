@@ -2007,7 +2007,7 @@
     function checkBagAndPassSecurity() {
       // 1) 보안검색에서 이미 액체류가 걸렸으나 아직 백드롭에서 재부치지 않은 경우 (none 또는 sent_direct)
       if (gameState.stage2.failedSecurityOnce && (gameState.stage2.bagDropState === 'none' || gameState.stage2.bagDropState === 'sent_direct')) {
-        showModal("안내", "액체류를 처리해야 보안검색대를 통과할 수 있어", [{ text: "확인" }]);
+        showModal("짐을 부쳐야 해", "금지물품을 처리해야 보안검색대를 통과할 수 있어", [{ text: "확인" }]);
         return;
       }
 
