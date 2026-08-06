@@ -436,7 +436,7 @@
       justify-content: center;
       align-items: center;
       z-index: 150;
-      gap: 32px;
+      gap: 18px;
       padding: 24px;
     }
 
@@ -675,7 +675,9 @@
     <!-- 인트로 화면 오버레이 -->
     <div id="intro-screen">
       <h1 class="intro-title">LET'S GO TRAVEL</h1>
-      <button id="btn-start" class="nes-btn is-success" style="font-size: 16px !important;">START GAME</button>
+      <button id="btn-start" class="nes-btn is-success" style="font-size: 16px !important; margin-bottom: 8px;">START GAME</button>
+      <!-- 인트로용 실시간 랭킹보드 -->
+      <div id="intro-ranking-board" style="width: 100%; display: flex; flex-direction: column; align-items: center; gap: 4px;"></div>
     </div>
 
     <!-- 상단 게임 화면 영역 -->
@@ -2346,6 +2348,95 @@
         addMinutes(1);
       }, 1000);
     }
+
+    async function loadAndShowIntroRankings() {
+      const boardEl = document.getElementById('intro-ranking-board');
+      if (!boardEl) return;
+
+      let rankings = [];
+      let isSupabaseActive = (supabaseClient !== null);
+
+      if (isSupabaseActive) {
+        try {
+          const { data: dbData, error: selectError } = await supabaseClient
+            .from('rankings')
+            .select('*')
+            .neq('nickname', '피카츄')
+            .order('clear_time', { ascending: true })
+            .order('attempts', { ascending: true })
+            .limit(5);
+
+          if (!selectError && dbData) {
+            rankings = dbData.map(item => ({
+              nickname: item.nickname,
+              attempts: item.attempts,
+              clearTime: item.clear_time
+            }));
+          } else {
+            isSupabaseActive = false;
+          }
+        } catch (e) {
+          console.error("Intro ranking load error:", e);
+          isSupabaseActive = false;
+        }
+      }
+
+      if (!isSupabaseActive) {
+        let localRankings = [];
+        try {
+          localRankings = JSON.parse(localStorage.getItem('letsgotravel_rankings')) || [];
+        } catch (e) {
+          localRankings = [];
+        }
+        rankings = localRankings.filter(rank => rank.nickname !== '피카츄').slice(0, 5);
+      }
+
+      if (rankings.length === 0) {
+        boardEl.innerHTML = `<p style="font-size: 10px; color: #aaa; text-shadow: 1px 1px 0px #000;">등록된 실시간 랭킹 기록이 없습니다.</p>`;
+        return;
+      }
+
+      let tableHtml = `
+        <div style="font-size: 11px; font-weight: bold; color: #ffd43f; margin-bottom: 6px; text-shadow: 1px 1px 0px #000;">
+          🏆 실시간 온라인 TOP 5 랭킹
+        </div>
+        <table class="ranking-table">
+          <thead>
+            <tr>
+              <th style="width: 15%">순위</th>
+              <th style="width: 35%">닉네임</th>
+              <th style="width: 25%">시도 횟수</th>
+              <th style="width: 25%">시간</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      rankings.forEach((rank, index) => {
+        const m = Math.floor(rank.clearTime / 60);
+        const s = rank.clearTime % 60;
+        const timeStr = `${m}분 ${s}초`;
+
+        tableHtml += `
+          <tr>
+            <td>${index + 1}</td>
+            <td>${escapeHtml(rank.nickname)}</td>
+            <td>${rank.attempts}회</td>
+            <td>${timeStr}</td>
+          </tr>
+        `;
+      });
+
+      tableHtml += `
+          </tbody>
+        </table>
+      `;
+
+      boardEl.innerHTML = tableHtml;
+    }
+
+    // 인트로 실시간 랭킹 자동 로드
+    loadAndShowIntroRankings();
   </script>
 </body>
 
