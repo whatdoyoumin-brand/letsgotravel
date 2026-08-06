@@ -2275,8 +2275,11 @@
     };
 
     document.getElementById('btn-start').onclick = () => {
-      // 닉네임 모달 열릴 때 인트로 랭킹 보드 숨김 (모달 아래 노출 방지)
-      document.getElementById('intro-ranking-board').classList.add('hidden');
+      // 인트로 화면 숨기고 게임 배경 먼저 표시 (닉네임 모달이 게임 배경 위에 뜨도록)
+      document.getElementById('intro-screen').classList.add('hidden');
+      statusBar.classList.remove('hidden');
+      dialogueArea.classList.remove('hidden');
+
       const nickModal = document.getElementById('nickname-modal');
       const nickInput = document.getElementById('input-nickname');
       nickInput.value = "";
@@ -2296,10 +2299,6 @@
         }
         gameState.nickname = cleanVal;
         nickModal.classList.add('hidden');
-
-        document.getElementById('intro-screen').classList.add('hidden');
-        statusBar.classList.remove('hidden');
-        dialogueArea.classList.remove('hidden');
 
         showModal(STAGE01_DIALOGUES.userTypeSelect.title, STAGE01_DIALOGUES.userTypeSelect.desc, [
           {
