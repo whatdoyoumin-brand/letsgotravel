@@ -952,9 +952,9 @@
     function renderDialogueButtons(buttons) {
       dialogueBtns.innerHTML = '';
 
-      // 돌아가기 버튼을 상단 우측 전용 닫기 버튼으로 분리
+      // 돌아가기 버튼을 상단 우측 전용 닫기 버튼으로 분리 (showBackBtn:true 플래그가 있는 경우에만)
       const closeBtn = document.getElementById('btn-dialogue-close');
-      const goBackBtnInfo = buttons ? buttons.find(btn => btn.text === "▶ 돌아가기") : null;
+      const goBackBtnInfo = buttons ? buttons.find(btn => btn.showBackBtn === true) : null;
 
       if (goBackBtnInfo) {
         closeBtn.classList.remove('hidden');
@@ -970,7 +970,7 @@
         closeBtn.classList.add('hidden');
       }
 
-      const filteredButtons = buttons ? buttons.filter(btn => btn.text !== "▶ 돌아가기") : [];
+      const filteredButtons = buttons ? buttons.filter(btn => !btn.showBackBtn) : [];
       if (filteredButtons.length === 0) return;
 
       filteredButtons.forEach(btnInfo => {
@@ -1653,6 +1653,7 @@
 
       choices.push({
         text: "▶ 돌아가기",
+        showBackBtn: true,
         action: () => { }
       });
 
@@ -1690,10 +1691,6 @@
             showModal(STAGE01_DIALOGUES.luggage.choices[1].alertTitle, alertText, [{ text: "확인" }]);
           }
         },
-        {
-          text: "▶ 돌아가기",
-          action: () => { }
-        }
       ]);
     };
 
@@ -1731,10 +1728,6 @@
             showModal(STAGE01_DIALOGUES.cat.choices[1].alertTitle, STAGE01_DIALOGUES.cat.choices[1].alertDesc, [{ text: "확인" }]);
           }
         },
-        {
-          text: "▶ 돌아가기",
-          action: () => { }
-        }
       ]);
     };
 
@@ -1776,10 +1769,6 @@
             showModal(STAGE01_DIALOGUES.tv.choices[1].alertTitle, STAGE01_DIALOGUES.tv.choices[1].alertDesc, [{ text: "확인" }]);
           }
         },
-        {
-          text: "▶ 돌아가기",
-          action: () => { }
-        }
       ]);
     };
 
@@ -1808,10 +1797,6 @@
             showModal(STAGE01_DIALOGUES.carpet.choices[1].alertTitle, STAGE01_DIALOGUES.carpet.choices[1].alertDesc, [{ text: "확인" }]);
           }
         },
-        {
-          text: "▶ 돌아가기",
-          action: () => { }
-        }
       ]);
     };
 
