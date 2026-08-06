@@ -2272,6 +2272,8 @@
     };
 
     document.getElementById('btn-start').onclick = () => {
+      // 닉네임 모달 열릴 때 인트로 랭킹 보드 숨김 (모달 아래 노출 방지)
+      document.getElementById('intro-ranking-board').classList.add('hidden');
       const nickModal = document.getElementById('nickname-modal');
       const nickInput = document.getElementById('input-nickname');
       nickInput.value = "";
@@ -2435,8 +2437,10 @@
       boardEl.innerHTML = tableHtml;
     }
 
-    // 인트로 실시간 랭킹 자동 로드
-    loadAndShowIntroRankings();
+    // 인트로 실시간 랭킹 자동 로드 후 인트로 화면 표시 (깜빡임 방지)
+    loadAndShowIntroRankings().then(() => {
+      document.getElementById('intro-screen').classList.remove('hidden');
+    });
   </script>
 </body>
 
