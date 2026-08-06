@@ -6,14 +6,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Let's Go Travel</title>
   <!-- SEO 및 대표 이미지(Open Graph / Twitter Card) 메타 태그 설정 -->
-  <meta name="description" content="준비를 마치고 여행을 떠나세요! 레트로 스타일 RPG 포인트 앤 클릭 방 탈출 게임.">
+  <meta name="description" content="내일은 여행을 떠나는 날입니다, 무사히 떠날 수 있을까요?">
   <meta property="og:title" content="Let's Go Travel">
-  <meta property="og:description" content="준비를 마치고 여행을 떠나세요! 레트로 스타일 RPG 포인트 앤 클릭 방 탈출 게임.">
+  <meta property="og:description" content="내일은 여행을 떠나는 날입니다, 무사히 떠날 수 있을까요?">
   <meta property="og:image" content="bg/stage01_s.png">
   <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Let's Go Travel">
-  <meta name="twitter:description" content="준비를 마치고 여행을 떠나세요! 레트로 스타일 RPG 포인트 앤 클릭 방 탈출 게임.">
+  <meta name="twitter:description" content="내일은 여행을 떠나는 날입니다, 무사히 떠날 수 있을까요?">
   <meta name="twitter:image" content="bg/stage01_s.png">
   <!-- 레트로 도트 한글 폰트 적용을 위한 웹폰트 링크 -->
   <link rel="stylesheet" href="https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2105_2@1.0/DungGeunMo.css">
@@ -94,12 +94,15 @@
       border-bottom: 4px solid #2d1f18;
       overflow: hidden;
       image-rendering: pixelated;
-      -ms-overflow-style: none;  /* IE and Edge */
-      scrollbar-width: none;  /* Firefox */
+      -ms-overflow-style: none;
+      /* IE and Edge */
+      scrollbar-width: none;
+      /* Firefox */
     }
 
     #game-container::-webkit-scrollbar {
-      display: none; /* Chrome, Safari, Opera */
+      display: none;
+      /* Chrome, Safari, Opera */
     }
 
     /* 상단 HUD */
@@ -220,19 +223,37 @@
     .cat-somin {
       animation: somin-animate 1.2s steps(1) infinite !important;
     }
+
     @keyframes somin-animate {
-      0% { background-image: url('gif/somin1.png'); }
-      33.33% { background-image: url('gif/somin2.png'); }
-      66.66% { background-image: url('gif/somin3.png'); }
+      0% {
+        background-image: url('gif/somin1.png');
+      }
+
+      33.33% {
+        background-image: url('gif/somin2.png');
+      }
+
+      66.66% {
+        background-image: url('gif/somin3.png');
+      }
     }
 
     .cat-loki {
       animation: loki-animate 1.2s steps(1) infinite !important;
     }
+
     @keyframes loki-animate {
-      0% { background-image: url('gif/loki1.png'); }
-      33.33% { background-image: url('gif/loki2.png'); }
-      66.66% { background-image: url('gif/loki3.png'); }
+      0% {
+        background-image: url('gif/loki1.png');
+      }
+
+      33.33% {
+        background-image: url('gif/loki2.png');
+      }
+
+      66.66% {
+        background-image: url('gif/loki3.png');
+      }
     }
 
     #obj_bowl {
@@ -350,6 +371,7 @@
       backdrop-filter: blur(4px);
       pointer-events: auto;
     }
+
     .modal-content {
       width: 90%;
       max-width: 380px;
@@ -358,6 +380,7 @@
       padding: 20px !important;
       box-shadow: 0 8px 0px #1c130e;
     }
+
     .modal-overlay.hidden {
       display: none !important;
     }
@@ -374,6 +397,7 @@
       border: 3px solid #2d1f18;
       box-shadow: 0 4px 0px #1c130e;
     }
+
     .ranking-table th {
       background-color: #ffd43f;
       color: #23231f;
@@ -382,16 +406,20 @@
       text-align: center;
       font-weight: bold;
     }
+
     .ranking-table td {
       padding: 6px;
       border-bottom: 2px dashed #dcd1c4;
       text-align: center;
     }
+
     .ranking-table tr:last-child td {
       border-bottom: none;
     }
+
     .ranking-highlight {
-      background-color: #d8ffd8 !important; /* 현재 랭크 획득 하이라이트 */
+      background-color: #d8ffd8 !important;
+      /* 현재 랭크 획득 하이라이트 */
       font-weight: bold;
     }
 
@@ -633,16 +661,8 @@
       height: 0;
       overflow: hidden;
       z-index: -100;
-      content: 
-        url('bg/stage01_s.png') 
-        url('bg/stage01_s_bagclosed.png') 
-        url('bg/stage01_s_tvonbagclosed.png') 
-        url('bg/stage01_s_tvonbagopen.png') 
-        url('bg/stage01_l.png') 
-        url('bg/stage01_l_bagclosed.png') 
-        url('bg/stage01_l_tvonbagclosed.png') 
-        url('bg/stage01_l_tvonbagopen.png') 
-        url('bg/stage02.png');
+      content:
+        url('bg/stage01_s.png') url('bg/stage01_s_bagclosed.png') url('bg/stage01_s_tvonbagclosed.png') url('bg/stage01_s_tvonbagopen.png') url('bg/stage01_l.png') url('bg/stage01_l_bagclosed.png') url('bg/stage01_l_tvonbagclosed.png') url('bg/stage01_l_tvonbagopen.png') url('bg/stage02.png');
     }
   </style>
   <!-- [추가] 대사 데이터 독립 로드 -->
@@ -700,28 +720,39 @@
       <div id="clear-overlay" class="hidden">
         <div class="clear-banner">STAGE CLEAR 🎉</div>
         <div class="clear-sub" style="margin-bottom: 12px;">완벽하게 여행 준비를 마쳤습니다!</div>
-        <div id="clear-my-record" style="font-size: 11px; color: #fff; margin-bottom: 10px; text-shadow: 1px 1px 0px #000; text-align: center; line-height: 1.4;"></div>
-        
-        <!-- 실시간 통계 표시 판넬 -->
-        <div id="clear-stats-board" class="hidden" style="font-size: 9px; color: #eee; margin-bottom: 12px; text-shadow: 1px 1px 0px #000; text-align: left; line-height: 1.6; background: rgba(45, 31, 24, 0.85); border: 2px solid #5a3f30; padding: 8px 12px; border-radius: 4px; width: 85%; box-sizing: border-box; display: flex; flex-direction: column; gap: 3px;">
-          <div>📊 다른 사람들이 가장 많이 놓친 항목: <span id="stat-most-missed" style="color: #ff6b6b; font-weight: bold;">이티켓 확인</span></div>
-          <div>📈 계획파가 가장 많이 한 딴짓: <span id="stat-planner-distraction" style="color: #ffd43f; font-weight: bold;">고양이 쓰다듬기</span></div>
-          <div>📉 기분파가 가장 많이 한 딴짓: <span id="stat-spontaneous-distraction" style="color: #ffd43f; font-weight: bold;">SNS(숏폼) 보기</span></div>
+        <div id="clear-my-record"
+          style="font-size: 11px; color: #fff; margin-bottom: 10px; text-shadow: 1px 1px 0px #000; text-align: center; line-height: 1.4;">
         </div>
-        
-        <div id="ranking-board" style="width: 100%; display: flex; flex-direction: column; align-items: center; gap: 6px;"></div>
+
+        <!-- 실시간 통계 표시 판넬 -->
+        <div id="clear-stats-board" class="hidden"
+          style="font-size: 9px; color: #eee; margin-bottom: 12px; text-shadow: 1px 1px 0px #000; text-align: left; line-height: 1.6; background: rgba(45, 31, 24, 0.85); border: 2px solid #5a3f30; padding: 8px 12px; border-radius: 4px; width: 85%; box-sizing: border-box; display: flex; flex-direction: column; gap: 3px;">
+          <div>📊 다른 사람들이 가장 많이 놓친 항목: <span id="stat-most-missed" style="color: #ff6b6b; font-weight: bold;">이티켓
+              확인</span></div>
+          <div>📈 계획파가 가장 많이 한 딴짓: <span id="stat-planner-distraction" style="color: #ffd43f; font-weight: bold;">고양이
+              쓰다듬기</span></div>
+          <div>📉 기분파가 가장 많이 한 딴짓: <span id="stat-spontaneous-distraction"
+              style="color: #ffd43f; font-weight: bold;">SNS(숏폼) 보기</span></div>
+        </div>
+
+        <div id="ranking-board"
+          style="width: 100%; display: flex; flex-direction: column; align-items: center; gap: 6px;"></div>
       </div>
 
       <!-- 닉네임 입력 모달 -->
       <div id="nickname-modal" class="modal-overlay hidden">
         <div class="modal-content nes-dialog is-rounded">
-          <p class="title" style="color: #ffd43f; text-shadow: 2px 2px 0px #000; font-size: 16px; margin-bottom: 8px;">닉네임 등록 ✍️</p>
-          <p style="font-size: 12px; margin-bottom: 16px; color: #23231f; line-height: 1.4;">출국 수속을 시작할 여행자의 이름을 입력해주세요.</p>
+          <p class="title" style="color: #ffd43f; text-shadow: 2px 2px 0px #000; font-size: 16px; margin-bottom: 8px;">
+            닉네임 등록 ✍️</p>
+          <p style="font-size: 12px; margin-bottom: 16px; color: #23231f; line-height: 1.4;">출국 수속을 시작할 여행자의 이름을 입력해주세요.
+          </p>
           <div class="nes-field" style="margin-bottom: 18px;">
-            <input type="text" id="input-nickname" class="nes-input" placeholder="이름 (최대 6자)" maxlength="6" style="font-family: inherit;">
+            <input type="text" id="input-nickname" class="nes-input" placeholder="이름 (최대 6자)" maxlength="6"
+              style="font-family: inherit;">
           </div>
           <div style="display: flex; justify-content: flex-end;">
-            <button id="btn-nickname-submit" class="nes-btn is-primary" style="font-size: 12px; font-family: inherit; padding: 6px 16px;">출발하기</button>
+            <button id="btn-nickname-submit" class="nes-btn is-primary"
+              style="font-size: 12px; font-family: inherit; padding: 6px 16px;">출발하기</button>
           </div>
         </div>
       </div>
@@ -1211,7 +1242,7 @@
                 clear_time: currentClearTimeSeconds
               }
             ]);
-            
+
           if (!insertError) {
             // 3) DB에서 실시간 랭킹 목록 10개 조회
             const { data: dbData, error: selectError } = await supabaseClient
@@ -1296,12 +1327,12 @@
       `;
 
       const top5 = rankings.slice(0, 5);
-      
+
       // 현재 플레이어의 성적이 TOP 5 안에 들어와있는지 찾기
       let currentHighlightIndex = -1;
       if (isSupabaseActive) {
         // DB 데이터 중에서 방금 등록한 성적과 동일한 값을 지닌 것을 비교하여 강조
-        currentHighlightIndex = top5.findIndex(rank => 
+        currentHighlightIndex = top5.findIndex(rank =>
           rank.nickname === gameState.nickname &&
           rank.attempts === gameState.attempts &&
           rank.clearTime === currentClearTimeSeconds
@@ -1313,11 +1344,11 @@
       top5.forEach((rank, index) => {
         const isCurrent = (index === currentHighlightIndex);
         const highlightClass = isCurrent ? 'class="ranking-highlight"' : '';
-        
+
         const m = Math.floor(rank.clearTime / 60);
         const s = rank.clearTime % 60;
         const timeStr = `${m}분 ${s}초`;
-        
+
         tableHtml += `
           <tr ${highlightClass}>
             <td>${index + 1}</td>
@@ -1355,14 +1386,14 @@
 
     function getMostFrequentDistractionName(logs) {
       if (!logs || logs.length === 0) return "SNS(숏폼) 보기";
-      
+
       let snsSum = 0;
       let catSum = 0;
       let tvSum = 0;
       let bowlSum = 0;
       let carpetSum = 0;
       let dutyfreeSum = 0;
-      
+
       logs.forEach(log => {
         if (log.distraction_sns) snsSum++;
         if (log.distraction_cat) catSum++;
@@ -1371,7 +1402,7 @@
         if (log.distraction_carpet) carpetSum++;
         if (log.distraction_dutyfree) dutyfreeSum += log.distraction_dutyfree;
       });
-      
+
       const sums = [
         { name: "SNS(숏폼) 보기", value: snsSum },
         { name: "고양이 쓰다듬기", value: catSum },
@@ -1380,7 +1411,7 @@
         { name: "카페트 정리", value: carpetSum },
         { name: "면세점 쇼핑", value: dutyfreeSum }
       ];
-      
+
       sums.sort((a, b) => b.value - a.value);
       return sums[0].name;
     }
@@ -1414,7 +1445,7 @@
       // 1) 랭킹 및 내 기록 가리기
       document.getElementById('ranking-board').classList.add('hidden');
       document.getElementById('clear-my-record').classList.add('hidden');
-      
+
       // 2) 통계 보드 보이기
       const statsBoard = document.getElementById('clear-stats-board');
       statsBoard.classList.remove('hidden');
@@ -1548,11 +1579,11 @@
             const elapsed = addStandardTime();
             gameState.checks.phoneTicket = true;
             updateStatusBar();
-            
+
             const successTexts = STAGE01_DIALOGUES.phone.choices[0].alertDescs;
             const randomSuccess = successTexts[Math.floor(Math.random() * successTexts.length)];
             const alertText = randomSuccess.replace("{elapsed}", elapsed);
-            
+
             showModal(STAGE01_DIALOGUES.phone.choices[0].alertTitle, alertText, [{ text: "확인" }]);
           }
         },
@@ -1822,7 +1853,7 @@
     }
 
     // --- Stage 2 오브젝트 상호작용 이벤트 핸들러 ---
-    
+
     document.getElementById('obj_display').onclick = () => {
       if (gameState.stage2.movedTerminal) {
         showModal(STAGE02_DIALOGUES.fids.movedTerminal.title, STAGE02_DIALOGUES.fids.movedTerminal.desc, [{ text: "확인" }]);
@@ -1924,17 +1955,17 @@
         const elapsed = Math.floor(Math.random() * (25 - 15 + 1)) + 15; // 15~25분 랜덤 소모
         addMinutes(elapsed);
         gameState.stage2.failedSecurityOnce = true;
-        
+
         // 백드롭을 아예 안 한 상태였다면 짐을 보내야 하므로 상태를 'sent_direct'로 강제 업데이트
         if (gameState.stage2.bagDropState === 'none') {
           gameState.stage2.bagDropState = 'sent_direct';
         }
-        
+
         updateStatusBar();
         const forbiddenItems = ["폼클렌징이", "샴푸가", "고추장이", "커터칼이", "스테이크나이프가", "권총이"];
         const randomItem = forbiddenItems[Math.floor(Math.random() * forbiddenItems.length)];
         const alertText = STAGE02_DIALOGUES.security.passCluttered.alertDesc.replace("{item}", randomItem);
-        
+
         showModal(STAGE02_DIALOGUES.security.passCluttered.alertTitle, alertText, [
           {
             text: STAGE02_DIALOGUES.security.passCluttered.choices[0].text,
@@ -2018,13 +2049,13 @@
               addMinutes(elapsed);
               gameState.stage2.fidsChecked = true;
               gameState.stage2.movedTerminal = true;
-              
+
               // 터미널 이동으로 인한 수하물 위탁 및 검색 실패 상태 초기화
               gameState.stage2.bagDropState = 'none';
               gameState.stage2.failedSecurityOnce = false;
-              
+
               updateStatusBar();
-              
+
               const alertText = STAGE02_DIALOGUES.security.wrongTerminal.choices[0].alertDesc.replace("{elapsed}", elapsed);
               showModal(STAGE02_DIALOGUES.security.wrongTerminal.choices[0].alertTitle, alertText, [
                 {
@@ -2145,10 +2176,10 @@
 
             // 로컬 스토리지에 결과 저장 및 랭킹 산출
             saveAndShowRankings(totalSeconds);
-            
+
             // 대사창 숨기기
             dialogueArea.classList.add('hidden');
-            
+
             // 오버레이 클릭 시 처음으로 리로드
             clearOverlay.style.cursor = 'pointer';
             clearOverlay.onclick = () => {
