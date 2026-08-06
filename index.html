@@ -767,6 +767,7 @@
     <div id="dialogue-area" class="dialogue-box-container hidden">
       <div class="dialogue-box" onclick="skipTyping()">
         <div id="dialogue-title" class="dialogue-title hidden">알림</div>
+        <button id="btn-dialogue-close" class="nes-btn is-error hidden" style="position: absolute; right: 16px; top: 12px; font-size: 9px !important; padding: 4px 8px; font-family: inherit; z-index: 10;">돌아가기</button>
         <div id="dialogue-text" class="dialogue-text">준비가 끝나면 자러가자</div>
         <div id="dialogue-btns" class="dialogue-buttons"></div>
       </div>
@@ -945,9 +946,29 @@
 
     function renderDialogueButtons(buttons) {
       dialogueBtns.innerHTML = '';
-      if (!buttons || buttons.length === 0) return;
+      
+      // 돌아가기 버튼을 상단 우측 전용 닫기 버튼으로 분리
+      const closeBtn = document.getElementById('btn-dialogue-close');
+      const goBackBtnInfo = buttons ? buttons.find(btn => btn.text === "▶ 돌아가기") : null;
+      
+      if (goBackBtnInfo) {
+        closeBtn.classList.remove('hidden');
+        closeBtn.onclick = (e) => {
+          e.stopPropagation();
+          dialogueTriggeredThisTurn = false;
+          if (goBackBtnInfo.action) goBackBtnInfo.action();
+          if (!dialogueTriggeredThisTurn && !gameState.isGameOver) {
+            showIdleDialogue();
+          }
+        };
+      } else {
+        closeBtn.classList.add('hidden');
+      }
 
-      buttons.forEach(btnInfo => {
+      const filteredButtons = buttons ? buttons.filter(btn => btn.text !== "▶ 돌아가기") : [];
+      if (filteredButtons.length === 0) return;
+
+      filteredButtons.forEach(btnInfo => {
         if (btnInfo.hidden) return;
 
         const btn = document.createElement('button');
@@ -989,6 +1010,7 @@
         }
       }
       dialogueBtns.innerHTML = "";
+      document.getElementById('btn-dialogue-close').classList.add('hidden');
     }
 
     // 모달 표시 함수 (대사창 바인딩)
