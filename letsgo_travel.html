@@ -1248,6 +1248,7 @@
             const { data: dbData, error: selectError } = await supabaseClient
               .from('rankings')
               .select('*')
+              .neq('nickname', '피카츄')
               .order('clear_time', { ascending: true })
               .order('attempts', { ascending: true })
               .limit(10);
@@ -1303,7 +1304,7 @@
 
       // 만약 Supabase 활성화 상태가 아니라면 로컬 랭킹 데이터를 표출 데이터로 지정
       if (!isSupabaseActive) {
-        rankings = localRankings;
+        rankings = localRankings.filter(rank => rank.nickname !== '피카츄');
       }
 
       // 테이블 생성
