@@ -1915,11 +1915,6 @@
           action: () => {
             showModal(STAGE02_DIALOGUES.fids.choices[1].alertTitle, STAGE02_DIALOGUES.fids.choices[1].alertDesc, [{ text: "확인" }]);
           }
-        },
-        {
-          text: "▶ 돌아가기",
-          action: () => {}
-        }
       ]);
     };
 
@@ -1978,11 +1973,6 @@
             gameState.stage2.bagDropState = 'sent_direct';
             showModal(STAGE02_DIALOGUES.bagDrop.choices[1].alertTitle, STAGE02_DIALOGUES.bagDrop.choices[1].alertDesc, [{ text: "확인" }]);
           }
-        },
-        {
-          text: "▶ 돌아가기",
-          action: () => {}
-        }
       ]);
     };
 
@@ -2237,11 +2227,6 @@
         const j = Math.floor(Math.random() * (i + 1));
         [choices[i], choices[j]] = [choices[j], choices[i]];
       }
-
-      choices.push({
-        text: "▶ 돌아가기",
-        action: () => {}
-      });
 
       showModal(STAGE02_DIALOGUES.gateSeat.title, STAGE02_DIALOGUES.gateSeat.desc, choices);
     };
