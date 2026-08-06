@@ -1558,6 +1558,10 @@
             const alertText = STAGE01_DIALOGUES.passport.choices[1].alertDesc.replace("{elapsed}", elapsed);
             showModal(STAGE01_DIALOGUES.passport.choices[1].alertTitle, alertText, [{ text: "확인" }]);
           }
+        },
+        {
+          text: "▶ 돌아가기",
+          action: () => {}
         }
       ]);
     };
@@ -1620,6 +1624,11 @@
         [choices[i], choices[j]] = [choices[j], choices[i]];
       }
 
+      choices.push({
+        text: "▶ 돌아가기",
+        action: () => {}
+      });
+
       showModal(STAGE01_DIALOGUES.phone.title, STAGE01_DIALOGUES.phone.desc, choices);
     };
 
@@ -1653,6 +1662,10 @@
             const alertText = STAGE01_DIALOGUES.luggage.choices[1].alertDesc.replace("{elapsed}", elapsed);
             showModal(STAGE01_DIALOGUES.luggage.choices[1].alertTitle, alertText, [{ text: "확인" }]);
           }
+        },
+        {
+          text: "▶ 돌아가기",
+          action: () => {}
         }
       ]);
     };
@@ -1690,6 +1703,10 @@
             gameState.checks.catInteract = true;
             showModal(STAGE01_DIALOGUES.cat.choices[1].alertTitle, STAGE01_DIALOGUES.cat.choices[1].alertDesc, [{ text: "확인" }]);
           }
+        },
+        {
+          text: "▶ 돌아가기",
+          action: () => {}
         }
       ]);
     };
@@ -1731,6 +1748,10 @@
             updateRoomBackground();
             showModal(STAGE01_DIALOGUES.tv.choices[1].alertTitle, STAGE01_DIALOGUES.tv.choices[1].alertDesc, [{ text: "확인" }]);
           }
+        },
+        {
+          text: "▶ 돌아가기",
+          action: () => {}
         }
       ]);
     };
@@ -1759,6 +1780,10 @@
             gameState.checks.carpetInteract = true;
             showModal(STAGE01_DIALOGUES.carpet.choices[1].alertTitle, STAGE01_DIALOGUES.carpet.choices[1].alertDesc, [{ text: "확인" }]);
           }
+        },
+        {
+          text: "▶ 돌아가기",
+          action: () => {}
         }
       ]);
     };
@@ -1881,6 +1906,10 @@
           action: () => {
             showModal(STAGE02_DIALOGUES.fids.choices[1].alertTitle, STAGE02_DIALOGUES.fids.choices[1].alertDesc, [{ text: "확인" }]);
           }
+        },
+        {
+          text: "▶ 돌아가기",
+          action: () => {}
         }
       ]);
     };
@@ -1940,6 +1969,10 @@
             gameState.stage2.bagDropState = 'sent_direct';
             showModal(STAGE02_DIALOGUES.bagDrop.choices[1].alertTitle, STAGE02_DIALOGUES.bagDrop.choices[1].alertDesc, [{ text: "확인" }]);
           }
+        },
+        {
+          text: "▶ 돌아가기",
+          action: () => {}
         }
       ]);
     };
@@ -2195,6 +2228,11 @@
         const j = Math.floor(Math.random() * (i + 1));
         [choices[i], choices[j]] = [choices[j], choices[i]];
       }
+
+      choices.push({
+        text: "▶ 돌아가기",
+        action: () => {}
+      });
 
       showModal(STAGE02_DIALOGUES.gateSeat.title, STAGE02_DIALOGUES.gateSeat.desc, choices);
     };
