@@ -650,6 +650,15 @@
       background-color: #ff4d4d !important;
     }
 
+    .dialogue-buttons .nes-btn.is-primary {
+      background-color: #209cee !important;
+      color: #fff !important;
+    }
+
+    .dialogue-buttons .nes-btn.is-primary:hover {
+      background-color: #108de0 !important;
+    }
+
     .hidden {
       display: none !important;
     }
@@ -691,7 +700,7 @@
       </div>
 
       <!-- Stage 1 오브젝트들 -->
-      <div id="stage01-wrapper" style="width: 100%; height: 100%; position: absolute; top: 0; left: 0;">
+      <div id="stage01-wrapper" style="width: 100%; height: 100%; position: absolute; top: 0; left: 0; pointer-events: none;">
         <div id="obj_bed" class="game-object">침대 (자러 가기)</div>
         <div id="obj_window" class="game-object">창문</div>
         <div id="obj_passport" class="game-object">여권</div>
@@ -1204,6 +1213,7 @@
       clearOverlay.classList.add('hidden');
 
       gameContainer.style.pointerEvents = 'auto';
+      stage01Wrapper.style.pointerEvents = 'auto';
       updateStatusBar();
       updateRoomBackground();
       showIdleDialogue();
@@ -1262,7 +1272,7 @@
       if (isSupabaseActive) {
         try {
           // 2) DB에 새 기록 저장
-          const { error: insertError } = await supabaseClient
+          const insertPromise = supabaseClient
             .from('rankings')
             .insert([
               {
@@ -1272,15 +1282,33 @@
               }
             ]);
 
+          const timeoutPromise1 = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Timeout')), 1500)
+          );
+
+          const { error: insertError } = await Promise.race([
+            insertPromise,
+            timeoutPromise1
+          ]);
+
           if (!insertError) {
             // 3) DB에서 실시간 랭킹 목록 10개 조회
-            const { data: dbData, error: selectError } = await supabaseClient
+            const selectPromise = supabaseClient
               .from('rankings')
               .select('*')
               .neq('nickname', '피카츄')
               .order('clear_time', { ascending: true })
               .order('attempts', { ascending: true })
               .limit(10);
+
+            const timeoutPromise2 = new Promise((_, reject) =>
+              setTimeout(() => reject(new Error('Timeout')), 1500)
+            );
+
+            const { data: dbData, error: selectError } = await Promise.race([
+              selectPromise,
+              timeoutPromise2
+            ]);
 
             if (!selectError && dbData) {
               // DB 데이터 규격에 맞춰 매핑
@@ -1297,7 +1325,7 @@
             isSupabaseActive = false; // 에러 발생 시 로컬 폴백
           }
         } catch (e) {
-          console.error("Supabase error:", e);
+          console.error("Supabase error (or timeout):", e);
           isSupabaseActive = false;
         }
       }
@@ -1450,7 +1478,7 @@
       if (!supabaseClient) return;
       try {
         const reasonKey = status === 'fail' ? getReasonKey(reasonText) : null;
-        await supabaseClient
+        const insertPromise = supabaseClient
           .from('game_logs')
           .insert([
             {
@@ -1466,8 +1494,17 @@
               distraction_dutyfree: gameState.checks.distractions.dutyfree
             }
           ]);
+
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Timeout')), 1500)
+        );
+
+        await Promise.race([
+          insertPromise,
+          timeoutPromise
+        ]);
       } catch (e) {
-        console.error("Log insert error:", e);
+        console.error("Log insert error (or timeout):", e);
       }
     }
 
@@ -1483,13 +1520,43 @@
       let isSupabaseActive = (supabaseClient !== null);
       if (isSupabaseActive) {
         try {
-          // 실패 원인 집계용 (최신 500개)
-          const { data: failLogs } = await supabaseClient
-            .from('game_logs')
-            .select('fail_reason')
-            .eq('status', 'fail')
-            .order('id', { ascending: false })
-            .limit(500);
+          const fetchStats = async () => {
+            const failPromise = supabaseClient
+              .from('game_logs')
+              .select('fail_reason')
+              .eq('status', 'fail')
+              .order('id', { ascending: false })
+              .limit(500);
+
+            const plannerPromise = supabaseClient
+              .from('game_logs')
+              .select('distraction_sns, distraction_cat, distraction_tv, distraction_bowl, distraction_carpet, distraction_dutyfree')
+              .eq('user_type', 'planner')
+              .limit(500);
+
+            const spontaneousPromise = supabaseClient
+              .from('game_logs')
+              .select('distraction_sns, distraction_cat, distraction_tv, distraction_bowl, distraction_carpet, distraction_dutyfree')
+              .eq('user_type', 'spontaneous')
+              .limit(500);
+
+            const [failRes, plannerRes, spontaneousRes] = await Promise.all([
+              failPromise,
+              plannerPromise,
+              spontaneousPromise
+            ]);
+
+            return { failLogs: failRes.data, plannerLogs: plannerRes.data, spontaneousLogs: spontaneousRes.data };
+          };
+
+          const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Timeout')), 1500)
+          );
+
+          const { failLogs, plannerLogs, spontaneousLogs } = await Promise.race([
+            fetchStats(),
+            timeoutPromise
+          ]);
 
           if (failLogs && failLogs.length > 0) {
             const failCounts = {};
@@ -1521,29 +1588,15 @@
             }
           }
 
-          // 계획파 딴짓 집계용 (최신 500개)
-          const { data: plannerLogs } = await supabaseClient
-            .from('game_logs')
-            .select('distraction_sns, distraction_cat, distraction_tv, distraction_bowl, distraction_carpet, distraction_dutyfree')
-            .eq('user_type', 'planner')
-            .limit(500);
-
           if (plannerLogs && plannerLogs.length > 0) {
             document.getElementById('stat-planner-distraction').innerText = getMostFrequentDistractionName(plannerLogs);
           }
-
-          // 기분파 딴짓 집계용 (최신 500개)
-          const { data: spontaneousLogs } = await supabaseClient
-            .from('game_logs')
-            .select('distraction_sns, distraction_cat, distraction_tv, distraction_bowl, distraction_carpet, distraction_dutyfree')
-            .eq('user_type', 'spontaneous')
-            .limit(500);
 
           if (spontaneousLogs && spontaneousLogs.length > 0) {
             document.getElementById('stat-spontaneous-distraction').innerText = getMostFrequentDistractionName(spontaneousLogs);
           }
         } catch (e) {
-          console.error("Failed to load Stage 1 clear stats:", e);
+          console.error("Stats load error (or timeout):", e);
         }
       }
     }
@@ -1587,10 +1640,6 @@
             const alertText = STAGE01_DIALOGUES.passport.choices[1].alertDesc.replace("{elapsed}", elapsed);
             showModal(STAGE01_DIALOGUES.passport.choices[1].alertTitle, alertText, [{ text: "확인" }]);
           }
-        },
-        {
-          text: "▶ 돌아가기",
-          action: () => { }
         }
       ]);
     };
@@ -1920,6 +1969,7 @@
           action: () => {
             showModal(STAGE02_DIALOGUES.fids.choices[1].alertTitle, STAGE02_DIALOGUES.fids.choices[1].alertDesc, [{ text: "확인" }]);
           }
+        }
       ]);
     };
 
@@ -1978,6 +2028,7 @@
             gameState.stage2.bagDropState = 'sent_direct';
             showModal(STAGE02_DIALOGUES.bagDrop.choices[1].alertTitle, STAGE02_DIALOGUES.bagDrop.choices[1].alertDesc, [{ text: "확인" }]);
           }
+        }
       ]);
     };
 
@@ -2252,6 +2303,10 @@
       statusBar.classList.remove('hidden');
       dialogueArea.classList.remove('hidden');
 
+      // START GAME 버튼 클릭 시 pointer-events 활성화
+      gameContainer.style.pointerEvents = 'auto';
+      dialogueArea.style.pointerEvents = 'auto';
+
       // 닉네임 입력을 하단 대사창 안에 인라인으로 표시
       dialogueTitle.classList.remove('hidden');
       dialogueTitle.innerText = '닉네임 등록 ✍️';
@@ -2328,6 +2383,7 @@
             document.getElementById('intro-screen').classList.add('hidden');
             // 게임 내 오브젝트 클릭 활성화
             gameContainer.style.pointerEvents = 'auto';
+            stage01Wrapper.style.pointerEvents = 'auto';
             // 실시간 타이머 시작
             startGameTimer();
           }
@@ -2351,13 +2407,22 @@
 
       if (isSupabaseActive) {
         try {
-          const { data: dbData, error: selectError } = await supabaseClient
+          const fetchPromise = supabaseClient
             .from('rankings')
             .select('*')
             .neq('nickname', '피카츄')
             .order('clear_time', { ascending: true })
             .order('attempts', { ascending: true })
             .limit(5);
+
+          const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Timeout')), 1500)
+          );
+
+          const { data: dbData, error: selectError } = await Promise.race([
+            fetchPromise,
+            timeoutPromise
+          ]);
 
           if (!selectError && dbData) {
             rankings = dbData.map(item => ({
@@ -2369,7 +2434,7 @@
             isSupabaseActive = false;
           }
         } catch (e) {
-          console.error("Intro ranking load error:", e);
+          console.error("Intro ranking load error (or timeout):", e);
           isSupabaseActive = false;
         }
       }
