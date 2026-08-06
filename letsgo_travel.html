@@ -2272,30 +2272,42 @@
     };
 
     document.getElementById('btn-start').onclick = () => {
-      // 인트로 화면 숨기고 게임 배경 먼저 표시 (닉네임 모달이 게임 배경 위에 뜨도록)
+      // 인트로 화면 숨기고 게임 배경 + 하단 대사창 표시
       document.getElementById('intro-screen').classList.add('hidden');
       statusBar.classList.remove('hidden');
       dialogueArea.classList.remove('hidden');
 
-      const nickModal = document.getElementById('nickname-modal');
-      const nickInput = document.getElementById('input-nickname');
-      nickInput.value = "";
-      nickModal.classList.remove('hidden');
+      // 닉네임 입력을 하단 대사창 안에 인라인으로 표시
+      dialogueTitle.classList.remove('hidden');
+      dialogueTitle.innerText = '닉네임 등록 ✍️';
+      dialogueText.innerHTML = '여행자의 이름을 입력해주세요.';
+      document.getElementById('btn-dialogue-close').classList.add('hidden');
 
-      document.getElementById('btn-nickname-submit').onclick = () => {
-        const val = nickInput.value.trim();
-        if (!val) {
-          alert("여행자의 이름을 한 글자 이상 입력해주세요!");
-          return;
-        }
-        // 한글, 영문, 숫자, 공백만 허용하여 XSS 태그 유입 원천 차단
-        const cleanVal = val.replace(/[^a-zA-Z0-9가-힣ㄱ-ㅎㅏ-ㅣ\s]/g, "");
-        if (!cleanVal) {
-          alert("올바른 이름(한글, 영문, 숫자만 가능)을 입력해주세요!");
-          return;
-        }
+      dialogueBtns.innerHTML = `
+        <div style="display:flex; gap:8px; align-items:center; width:100%; margin-top:4px;">
+          <input type="text" id="inline-nickname-input"
+            maxlength="6"
+            placeholder="이름 (최대 6자)"
+            style="flex:1; font-family:inherit; font-size:13px; padding:8px 10px;
+                   border:2px solid #23231f; border-radius:4px; background:#fff;
+                   color:#23231f; outline:none;"
+          />
+          <button id="inline-nickname-submit" class="nes-btn is-primary"
+            style="font-size:12px; font-family:inherit; padding:8px 14px; white-space:nowrap;">
+            출발하기
+          </button>
+        </div>
+      `;
+
+      const inlineInput = document.getElementById('inline-nickname-input');
+      inlineInput.focus();
+
+      const submitNickname = () => {
+        const val = inlineInput.value.trim();
+        if (!val) { alert('여행자의 이름을 한 글자 이상 입력해주세요!'); return; }
+        const cleanVal = val.replace(/[^a-zA-Z0-9가-힣ㄱ-ㅎㅏ-ㅣ\s]/g, '');
+        if (!cleanVal) { alert('올바른 이름(한글, 영문, 숫자만 가능)을 입력해주세요!'); return; }
         gameState.nickname = cleanVal;
-        nickModal.classList.add('hidden');
 
         showModal(STAGE01_DIALOGUES.userTypeSelect.title, STAGE01_DIALOGUES.userTypeSelect.desc, [
           {
@@ -2324,6 +2336,11 @@
           }
         ]);
       };
+
+      document.getElementById('inline-nickname-submit').onclick = submitNickname;
+      inlineInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') submitNickname();
+      });
     };
 
     function showIntroScriptPopup() {
